@@ -44,7 +44,7 @@ Use the built-in `unset` command to remove environment variables from the curren
 unset sample
 ```
 
-Use the built-in `env` command to list all environment variable currently set (pipe it to `sort`, otherwise it is jumbled mess):
+Use the `env` command to list all environment variable currently set (pipe it to `sort`, otherwise it is a jumbled mess):
 
 ```shell
 env | sort
