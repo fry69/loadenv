@@ -51,3 +51,7 @@ env | sort
 ## Bugs
 
 The current implementation may have problems with spaces in the filename for `.env` files.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
