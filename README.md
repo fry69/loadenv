@@ -28,15 +28,17 @@ Put files ending with `.env` into this directory containing environment variable
 SAMPLE_API_KEY=super_secret
 ```
 
-Make sure the `loadenv.sh` is loaded into your bash environment, the use it like this:
+Make sure the `loadenv.sh` is loaded into your bash environment, then use it like this:
 
 ```shell
 loadenv sample
 ```
 
-The snippet supports tab expansion of all `.env` files found the `~/.env` directory.
+`loadenv` supports tab expansion of all `.env` files found in `~/.env`.
 
-Use the built-in `unset` command to remove a environment variable from the current bash environment:
+## Tips
+
+Use the built-in `unset` command to remove environment variables from the current bash environment:
 
 ```shell
 unset sample
@@ -49,6 +51,8 @@ env | sort
 ```
 
 ## Bugs
+
+The `$HOME/.env` directory name may already been taken.
 
 The current implementation may have problems with spaces in the filename for `.env` files.
 
