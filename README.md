@@ -14,8 +14,8 @@ source $HOME/.bash/loadenv.sh
 Create a `.env` directory in your home directory and make it only accessible to you (optional, but a good idea).
 
 ```shell
-mkdir ~/.env
-chmod 700 ~/.env
+mkdir ~/.loadenv
+chmod 700 ~/.loadenv
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ Make sure the `loadenv.sh` is loaded into your bash environment, then use it lik
 loadenv sample
 ```
 
-`loadenv` supports tab expansion of all `.env` files found in `~/.env`.
+`loadenv` supports tab expansion of all `.env` files found in `~/.loadenv`.
 
 ## Tips
 
@@ -52,9 +52,7 @@ env | sort
 
 ## Bugs
 
-The `$HOME/.env` directory name may already been taken.
-
-The current implementation may have problems with spaces in the filename for `.env` files.
+The current implementation may have problems with spaces in the filename for `.loadenv` files.
 
 ## License
 

@@ -7,7 +7,7 @@ _loadenv_complete() {
   prev="${COMP_WORDS[COMP_CWORD-1]}"
 
   if [[ $prev == loadenv ]]; then
-    files=("$HOME/.env/"*.env)
+    files=("$HOME/.loadenv/"*.env)
     files=(${files[@]##*/})  # remove directory path
     files=(${files[@]%.env})  # remove .env suffix
     COMPREPLY=( $(compgen -W "${files[*]}" -- "$cur") )
@@ -17,7 +17,7 @@ _loadenv_complete() {
 complete -F _loadenv_complete loadenv
 
 loadenv () {
-  local env_file="$HOME/.env/${1}.env"
+  local env_file="$HOME/.loadenv/${1}.env"
 
   if [[ -f $env_file ]]; then
     set -o allexport
