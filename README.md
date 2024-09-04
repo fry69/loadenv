@@ -20,10 +20,10 @@ chmod 700 ~/.loadenv
 
 ## Usage
 
-Put files ending with `.env` into this directory containing environment variable definitions.
+Put files ending with `.env` into the `~/.loadenv/` directory containing environment variable definitions.
 
 ```shell
-# ~/.env/sample.env
+# ~/.loadenv/sample.env
 
 SAMPLE_API_KEY=super_secret
 ```
@@ -34,25 +34,42 @@ Make sure the `loadenv.sh` is loaded into your bash environment, then use it lik
 loadenv sample
 ```
 
-`loadenv` supports tab expansion of all `.env` files found in `~/.loadenv`.
+`loadenv` supports tab completion of all `.env` files found in `~/.loadenv`.
+
+### Additional Commands
+
+- `loadenv list`: Shows all environment variables loaded through loadenv in the current session.
+- `loadenv clear`: Unsets all environment variables loaded through loadenv in the current session.
 
 ## Tips
 
-Use the built-in `unset` command to remove environment variables from the current bash environment:
+Use the `loadenv list` command to see all variables loaded through loadenv:
 
 ```shell
-unset sample
+loadenv list
 ```
 
-Use the `env` command to list all environment variable currently set (pipe it to `sort`, otherwise it is a jumbled mess):
+Use the `loadenv clear` command to unset all variables loaded through loadenv:
+
+```shell
+loadenv clear
+```
+
+Use the `env` command to list all environment variables currently set (pipe it to `sort` for better readability):
 
 ```shell
 env | sort
 ```
 
+## Features
+
+- Tab completion for `.env` files in `~/.loadenv/`
+- Keeps track of loaded variables for easy listing and clearing
+- Prevents duplicate loading of variables
+
 ## Bugs
 
-The current implementation may have problems with spaces in the filename for `.loadenv` files.
+The current implementation may have problems with spaces in the filenames for `.loadenv` files.
 
 ## License
 
