@@ -61,8 +61,18 @@ loadenv () {
     grep -v '^#' "$env_file" | cut -d '=' -f1 > "$temp_file"
 
     while IFS= read -r var; do
-      if [[ ! " ${LOADENV_VARS[*]} " =~  ${var}  ]]; then
-        LOADENV_VARS+=("$var")
+      if [[ -n "$var" ]]; then
+        # Check if variable is not already in the array
+        local already_exists=false
+        for existing_var in "${LOADENV_VARS[@]}"; do
+          if [[ "$existing_var" == "$var" ]]; then
+            already_exists=true
+            break
+          fi
+        done
+        if [[ "$already_exists" == false ]]; then
+          LOADENV_VARS+=("$var")
+        fi
       fi
     done < "$temp_file"
 
