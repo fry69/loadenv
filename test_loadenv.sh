@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Source the loadenv function
+# shellcheck disable=SC1091
 source ./loadenv.sh
 
 # Create a temporary .env file for testing

@@ -8,9 +8,9 @@ _loadenv_complete() {
 
   if [[ $prev == loadenv ]]; then
     files=("$HOME/.loadenv/"*.env)
-    files=(${files[@]##*/})  # remove directory path
-    files=(${files[@]%.env})  # remove .env suffix
-    COMPREPLY=( $(compgen -W "${files[*]} list clear" -- "$cur") )
+    files=("${files[@]##*/}")  # remove directory path
+    files=("${files[@]%.env}")  # remove .env suffix
+    mapfile -t COMPREPLY < <(compgen -W "${files[*]} list clear" -- "$cur")
   fi
 }
 
@@ -18,7 +18,7 @@ complete -F _loadenv_complete loadenv
 
 loadenv () {
   local env_file="$HOME/.loadenv/${1}.env"
-  
+
   # Use an array to store loaded variable names
   if [[ -z ${LOADENV_VARS[*]} ]]; then
     declare -ga LOADENV_VARS=()
@@ -49,23 +49,25 @@ loadenv () {
   esac
 
   if [[ -f $env_file ]]; then
-    local temp_file=$(mktemp)
+    local temp_file
+    temp_file=$(mktemp)
     # Export variables and capture their names
     set -o allexport
+    # shellcheck source=/dev/null
     source "$env_file"
     set +o allexport
 
     # Store the names of the newly loaded variables
     grep -v '^#' "$env_file" | cut -d '=' -f1 > "$temp_file"
-    
+
     while IFS= read -r var; do
-      if [[ ! " ${LOADENV_VARS[*]} " =~ " ${var} " ]]; then
+      if [[ ! " ${LOADENV_VARS[*]} " =~  ${var}  ]]; then
         LOADENV_VARS+=("$var")
       fi
     done < "$temp_file"
-    
+
     rm "$temp_file"
-    
+
     echo "Environment variables loaded from $env_file"
   else
     echo "Error: .env file not found: $env_file" >&2
