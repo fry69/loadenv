@@ -130,7 +130,10 @@ run_tests() {
     output=$(cat "$temp_output")
     rm "$temp_output"
 
-    assert_contains "$output" "Environment variables loaded" "loadenv should confirm loading" || true
+    assert_contains "$output" "Loaded 3 vars:" "should show count of loaded variables" || true
+    assert_contains "$output" "TEST_VAR1" "should list TEST_VAR1 in loaded variables" || true
+    assert_contains "$output" "TEST_VAR2" "should list TEST_VAR2 in loaded variables" || true
+    assert_contains "$output" "TEST_VAR_WITH_SPACES" "should list TEST_VAR_WITH_SPACES in loaded variables" || true
     assert_equals "value1" "${TEST_VAR1:-}" "TEST_VAR1 should be set to 'value1'" || true
     assert_equals "value2" "${TEST_VAR2:-}" "TEST_VAR2 should be set to 'value2'" || true
     assert_equals "value with spaces" "${TEST_VAR_WITH_SPACES:-}" "TEST_VAR_WITH_SPACES should handle spaces" || true
@@ -152,10 +155,17 @@ run_tests() {
     # Test 3: Add more variables and reload
     log_test "Adding more variables"
     echo "TEST_VAR3=value3" >> "$TEST_ENV_FILE"
-    loadenv "$test_env_name" >/dev/null 2>&1
-    assert_equals "value3" "${TEST_VAR3:-}" "TEST_VAR3 should be set after reload" || true
 
+    # Capture output when loading with new variable
     local temp_output
+    temp_output=$(mktemp)
+    loadenv "$test_env_name" > "$temp_output" 2>&1
+    output=$(cat "$temp_output")
+    rm "$temp_output"
+
+    assert_equals "value3" "${TEST_VAR3:-}" "TEST_VAR3 should be set after reload" || true
+    assert_contains "$output" "Loaded 1 vars: TEST_VAR3" "should show only newly loaded variable TEST_VAR3" || true
+
     temp_output=$(mktemp)
     loadenv list > "$temp_output" 2>&1
     output=$(cat "$temp_output")

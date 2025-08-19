@@ -60,6 +60,7 @@ loadenv () {
     # Store the names of the newly loaded variables
     grep -v '^#' "$env_file" | cut -d '=' -f1 > "$temp_file"
 
+    local new_vars=()
     while IFS= read -r var; do
       if [[ -n "$var" ]]; then
         # Check if variable is not already in the array
@@ -72,13 +73,19 @@ loadenv () {
         done
         if [[ "$already_exists" == false ]]; then
           LOADENV_VARS+=("$var")
+          new_vars+=("$var")
         fi
       fi
     done < "$temp_file"
 
     rm "$temp_file"
 
-    echo "Environment variables loaded from $env_file"
+    # Print concise summary of what was loaded
+    if [[ ${#new_vars[@]} -gt 0 ]]; then
+      echo "Loaded ${#new_vars[@]} vars: ${new_vars[*]}"
+    else
+      echo "No new variables loaded"
+    fi
   else
     echo "Error: .env file not found: $env_file" >&2
     return 1
