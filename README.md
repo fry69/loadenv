@@ -1,76 +1,78 @@
-## loadenv
+# loadenv
 
-Load environment variables like API keys or other (sensitive) settings you do not want to be set always into the current bash environment on demand.
+Load environment variables such as API keys or other sensitive settings into your current bash environment on demand, without having them permanently set in your shell.
 
-## Installation
+### Features
 
-Put something like this into you `.bashrc` or `.bash_profile` to load the snippet into your bash environment:
+- Tab completion for `.env` files in `~/.loadenv/`
+- Tracks loaded variables for easy listing and clearing
+- Prevents duplicate loading of variables
+
+### Installation
+
+Add the following to your `.bashrc` or `.bash_profile` to load the loadenv functionality:
 
 ```shell
-# Loader function (with completion) for *.env files in ~/.env/
+# Loader function (with completion) for *.env files in ~/.loadenv/
 source $HOME/.bash/loadenv.sh
 ```
 
-Create a `.env` directory in your home directory and make it only accessible to you (optional, but a good idea).
+Create a `.loadenv` directory in your home directory and restrict access to your user only (recommended for security):
 
 ```shell
 mkdir ~/.loadenv
 chmod 700 ~/.loadenv
 ```
 
-## Usage
+### Usage
 
-Put files ending with `.env` into the `~/.loadenv/` directory containing environment variable definitions.
+Place files ending with `.env` in the `~/.loadenv/` directory containing environment variable definitions.
 
 ```shell
 # ~/.loadenv/sample.env
 
-SAMPLE_API_KEY=super_secret
+SAMPLE_API_TOKEN=super_secret
 ```
 
-Make sure the `loadenv.sh` is loaded into your bash environment, then use it like this:
+Once `loadenv.sh` is loaded into your bash environment, use it as follows:
 
 ```shell
-loadenv sample
+$ loadenv sample
+Loaded 1 vars: SAMPLE_API_TOKEN
 ```
 
-`loadenv` supports tab completion of all `.env` files found in `~/.loadenv`.
-
-### Additional Commands
-
-- `loadenv list`: Shows all environment variables loaded through loadenv in the current session.
-- `loadenv clear`: Unsets all environment variables loaded through loadenv in the current session.
-
-## Tips
-
-Use the `loadenv list` command to see all variables loaded through loadenv:
+Use `loadenv list` to see all variables currently loaded through loadenv:
 
 ```shell
-loadenv list
+$ loadenv list
+Loaded environment variables:
+SAMPLE_API_TOKEN
 ```
 
-Use the `loadenv clear` command to unset all variables loaded through loadenv:
+Use `loadenv clear` to unset all variables loaded through loadenv:
 
 ```shell
-loadenv clear
+$ loadenv clear
+All loadenv variables have been unset for this session.
 ```
 
-Use the `env` command to list all environment variables currently set (pipe it to `sort` for better readability):
+### Tab Completion
+
+`loadenv` supports tab completion for all `.env` files found in `~/.loadenv/`, as well as internal commands.
+
+### Tips
+
+Use the `env` command to list all currently set environment variables (pipe to `sort` for better readability):
 
 ```shell
 env | sort
 ```
 
-## Features
+### Known Issues
 
-- Tab completion for `.env` files in `~/.loadenv/`
-- Keeps track of loaded variables for easy listing and clearing
-- Prevents duplicate loading of variables
+- The current implementation may have problems with spaces in `.env` filenames
+- The test script should run in a safe environment, preferably a container
 
-## Bugs
-
-The current implementation may have problems with spaces in the filenames for `.loadenv` files.
-
-## License
+### License
 
 This project is licensed under the [MIT License](LICENSE).
