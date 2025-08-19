@@ -11,6 +11,7 @@ source ./loadenv.sh
 # Global variables for cleanup
 TEST_ENV_FILE=""
 ORIGINAL_LOADENV_VARS=()
+COMPLETION_TEST_FILES=()  # Track completion test files for cleanup
 
 # Test result counters
 TESTS_PASSED=0
@@ -70,6 +71,14 @@ cleanup() {
         echo "Removed test file: $TEST_ENV_FILE"
     fi
 
+    # Remove completion test files if they exist
+    for test_file in "${COMPLETION_TEST_FILES[@]}"; do
+        if [[ -f "$test_file" ]]; then
+            rm "$test_file"
+            echo "Removed completion test file: $test_file"
+        fi
+    done
+
     # Clear any test variables
     loadenv clear >/dev/null 2>&1 || true
 
@@ -109,6 +118,89 @@ TEST_VAR_WITH_SPACES="value with spaces"
 EOF
 
     echo "Created test file: $TEST_ENV_FILE"
+}
+
+# Test shell completion functionality
+test_completion() {
+    log_test "Testing shell completion functionality"
+
+    # Generate unique filenames for completion testing
+    local random_suffix1 random_suffix2
+    random_suffix1=$(openssl rand -hex 6 2>/dev/null || date +%s%N | cut -c1-12)
+    random_suffix2=$(openssl rand -hex 6 2>/dev/null || date +%s%N | cut -c1-12)
+
+    local test_file1="$HOME/.loadenv/completion_${random_suffix1}.env"
+    local test_file2="$HOME/.loadenv/completion_${random_suffix2}.env"
+
+    # Track files for cleanup
+    COMPLETION_TEST_FILES=("$test_file1" "$test_file2")
+
+    # Create test environment files
+    echo "TEST_VAR=value1" > "$test_file1"
+    echo "TEST_VAR=value2" > "$test_file2"
+
+    # Extract just the filenames (without path and extension) for expected completion
+    local file1_base file2_base
+    file1_base=$(basename "$test_file1" .env)
+    file2_base=$(basename "$test_file2" .env)
+
+    # Test 1: Complete all available options (empty input)
+    local COMP_WORDS=("loadenv" "")
+    local COMP_CWORD=1
+    local COMPREPLY=()
+
+    _loadenv_complete
+
+    local completion_list="${COMPREPLY[*]}"
+    assert_contains "$completion_list" "$file1_base" "should complete to test file 1" || true
+    assert_contains "$completion_list" "$file2_base" "should complete to test file 2" || true
+    assert_contains "$completion_list" "list" "should include 'list' command" || true
+    assert_contains "$completion_list" "clear" "should include 'clear' command" || true
+
+    # Test 2: Partial completion with "completion_" prefix
+    COMP_WORDS=("loadenv" "completion_")
+    COMPREPLY=()
+    _loadenv_complete
+    completion_list="${COMPREPLY[*]}"
+    assert_contains "$completion_list" "$file1_base" "should complete partial match 1" || true
+    assert_contains "$completion_list" "$file2_base" "should complete partial match 2" || true
+
+    # Test 3: Command completion with "l" prefix
+    COMP_WORDS=("loadenv" "l")
+    COMPREPLY=()
+    _loadenv_complete
+    completion_list="${COMPREPLY[*]}"
+    assert_contains "$completion_list" "list" "should complete 'l' to 'list'" || true
+
+    # Test 4: Command completion with "c" prefix
+    COMP_WORDS=("loadenv" "c")
+    COMPREPLY=()
+    _loadenv_complete
+    completion_list="${COMPREPLY[*]}"
+    assert_contains "$completion_list" "clear" "should complete 'c' to 'clear'" || true
+
+    # Test 5: No matches for nonexistent prefix
+    COMP_WORDS=("loadenv" "nonexistent_prefix_xyz")
+    COMPREPLY=()
+    _loadenv_complete
+    if [[ ${#COMPREPLY[@]} -eq 0 ]]; then
+        log_success "should return no matches for nonexistent prefix"
+    else
+        log_failure "should return no matches for nonexistent prefix - Got: ${COMPREPLY[*]}"
+    fi
+
+    # Test 6: Completion when COMP_CWORD is not 1 (should not complete)
+    COMP_WORDS=("loadenv" "test" "extra")
+    COMP_CWORD=2
+    COMPREPLY=()
+    _loadenv_complete
+    if [[ ${#COMPREPLY[@]} -eq 0 ]]; then
+        log_success "should not complete when not in position 1"
+    else
+        log_failure "should not complete when not in position 1 - Got: ${COMPREPLY[*]}"
+    fi
+
+    echo
 }
 
 # Run tests
@@ -199,6 +291,9 @@ run_tests() {
     assert_equals "value1" "${TEST_VAR1:-}" "TEST_VAR1 should be restored after reload" || true
     assert_equals "value2" "${TEST_VAR2:-}" "TEST_VAR2 should be restored after reload" || true
     echo
+
+    # Test completion functionality
+    test_completion
 
     # Test 6: Error handling - non-existent file
     log_test "Error handling for non-existent file"
