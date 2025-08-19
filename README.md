@@ -1,6 +1,12 @@
 # loadenv
 
-Load environment variables such as API keys or other sensitive settings into your current bash environment on demand, without having them permanently set in your shell.
+Load environment variables such as API tokens or other sensitive settings into your current bash environment on demand, without having them permanently set in your shell.
+
+### Rationale
+
+The motivation for this approach is to avoid having sensitive tokens written to files in repositories, even if they do not get committed. Simply having sensitive data exist as files in your workspace poses security risks, as modern coding tools and IDEs rarely respect `.gitignore` files and will happily read everything they can get their hands on - basically everything that is in the workspace folder or below.
+
+This approach mitigates this problem by storing sensitive environment files in a hidden folder (`~/.loadenv/`) in the home directory. While this is not a perfect security solution, it provides an acceptable compromise for many use cases by keeping sensitive data out of project workspaces entirely.
 
 ### Features
 
